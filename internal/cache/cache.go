@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"path"
+	"sync"
 	"time"
 
 	"github.com/zemelkajakub/lskv/internal/keyvault"
@@ -57,41 +58,98 @@ func NewCache(ctx context.Context, p *profile.Profile) (*Cache, error) {
 		Vaults:         make([]Vault, 0, len(vaults)),
 	}
 
+	if len(vaults) == 0 {
+		cacheData.Statistics = Statistics{
+			TotalVaults:      0,
+			TotalSecrets:     0,
+			AccessibleVaults: 0,
+		}
+		return &cacheData, nil
+	}
+
+	type vaultJob struct {
+		vault keyvault.VaultInfo
+	}
+
+	type vaultResult struct {
+		vaultEntry Vault
+		err        error
+	}
+
+	workers := len(vaults) / 2
+	if workers < 1 {
+		workers = 1
+	}
+
 	totalSecrets := 0
 	accessibleVaults := 0
 
+	jobs := make(chan vaultJob, len(vaults))
+	results := make(chan vaultResult, len(vaults))
+
+	var wg sync.WaitGroup
+
+	for i := 0; i < workers; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+
+			for job := range jobs {
+				vault := job.vault
+
+				vaultEntry := Vault{
+					Name:          vault.Name,
+					ResourceGroup: vault.ResourceGroup,
+					Location:      vault.Location,
+					LastRefreshed: time.Now(),
+				}
+
+				secrets, status, err := client.ListSecrets(ctx, vault.Name)
+
+				vaultEntry.Status = status
+				if status == "success" {
+					vaultEntry.Accessible = true
+					vaultEntry.Secrets = secrets
+					vaultEntry.SecretsCount = len(secrets)
+				} else {
+					vaultEntry.Accessible = false
+				}
+
+				results <- vaultResult{vaultEntry: vaultEntry, err: err}
+			}
+		}()
+	}
+
 	for _, vault := range vaults {
+		jobs <- vaultJob{vault: vault}
+	}
+	close(jobs)
 
-		vaultEntry := Vault{
-			Name:          vault.Name,
-			ResourceGroup: vault.ResourceGroup,
-			Location:      vault.Location,
-			LastRefreshed: time.Now(),
-		}
+	for i := 0; i < len(vaults); i++ {
+		result := <-results
 
-		secrets, status, err := client.ListSecrets(ctx, vault.Name)
+		cacheData.Vaults = append(cacheData.Vaults, result.vaultEntry)
 
-		vaultEntry.Status = status
-		if status == "success" {
-			vaultEntry.Accessible = true
-			vaultEntry.Secrets = secrets
+		if result.vaultEntry.Status == "success" {
 			accessibleVaults++
-			vaultEntry.SecretsCount = len(secrets)
-			totalSecrets += len(secrets)
-		} else {
-			vaultEntry.Accessible = false
+			totalSecrets += result.vaultEntry.SecretsCount
 		}
-
-		cacheData.Vaults = append(cacheData.Vaults, vaultEntry)
 
 		// Log error details for unexpected failures
-		if err != nil {
-			fmt.Printf("  ✗ %-30s %s: %v\n", vault.Name, status, err)
+		if result.err != nil {
+			fmt.Printf("  ✗ %-30s %s: %v\n", result.vaultEntry.Name, result.vaultEntry.Status, result.err)
 		} else {
-			fmt.Printf("  ✗ %-30s %s\n", vault.Name, status)
+			statusSymbol := "✗"
+			if result.vaultEntry.Status == "success" {
+				statusSymbol = "✓"
+			}
+			fmt.Printf("  %s %-30s %s\n", statusSymbol, result.vaultEntry.Name, result.vaultEntry.Status)
 		}
-
 	}
+
+	wg.Wait()
+	close(results)
+
 	cacheData.Statistics = Statistics{
 		TotalVaults:      len(vaults),
 		TotalSecrets:     totalSecrets,
