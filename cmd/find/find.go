@@ -1,0 +1,57 @@
+package find
+
+import (
+	"fmt"
+	"strings"
+
+	"github.com/spf13/cobra"
+	cacheinternal "github.com/zemelkajakub/lskv/internal/cache"
+	"github.com/zemelkajakub/lskv/internal/config"
+)
+
+var Cmd = &cobra.Command{
+	Use:   "find [pattern]",
+	Short: "Search cached secret names by substring pattern",
+	Long: `Example:
+lskv find database
+	`,
+	Args: cobra.ExactArgs(1),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		pattern := strings.TrimSpace(args[0])
+		if pattern == "" {
+			return fmt.Errorf("search pattern cannot be empty")
+		}
+
+		alias, err := config.GetActiveProfile()
+		if err != nil {
+			return err
+		}
+
+		cacheData, err := cacheinternal.LoadCache(alias)
+		if err != nil {
+			return fmt.Errorf("failed to load cache for profile '%s': %w\nHint: run 'lskv cache refresh' first", alias, err)
+		}
+
+		normalizedPattern := strings.ToLower(pattern)
+		matches := 0
+
+		for _, vault := range cacheData.Vaults {
+			if !vault.Accessible || vault.Status != "success" {
+				continue
+			}
+
+			for _, secret := range vault.Secrets {
+				if strings.Contains(strings.ToLower(secret.Name), normalizedPattern) {
+					fmt.Printf("%s:%s\n", vault.Name, secret.Name)
+					matches++
+				}
+			}
+		}
+
+		if matches == 0 {
+			fmt.Println("No matches found.")
+		}
+
+		return nil
+	},
+}

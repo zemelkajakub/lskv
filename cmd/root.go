@@ -7,6 +7,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/zemelkajakub/lskv/cmd/cache"
+	"github.com/zemelkajakub/lskv/cmd/find"
 	"github.com/zemelkajakub/lskv/cmd/list"
 	"github.com/zemelkajakub/lskv/cmd/profile"
 	"github.com/zemelkajakub/lskv/internal/config"
@@ -18,7 +19,7 @@ var rootCmd = &cobra.Command{
 	Short: "lskv - Azure Key Vault secrets lister",
 	Long:  "Discover and retreive secrets from Azure Key Vaults across multiple Vaults with profiles and filters.",
 	Run: func(cmd *cobra.Command, args []string) {
-		//fmt.Println("Welcome to lskv! Use --help to see available commands.")
+		fmt.Println("Welcome to lskv! Use --help to see available commands.")
 	},
 }
 
@@ -34,6 +35,7 @@ func init() {
 	rootCmd.AddCommand(profile.Cmd)
 	rootCmd.AddCommand(list.Cmd)
 	rootCmd.AddCommand(cache.Cmd)
+	rootCmd.AddCommand(find.Cmd)
 
 }
 
