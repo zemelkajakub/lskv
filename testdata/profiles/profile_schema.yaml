@@ -1,0 +1,10 @@
+alias: prod
+subscription_id: "00000000-0000-0000-0000-000000000000"
+subscription_name: "Production Subscription"
+scope: "listed" # listed | all
+vaults:
+- kv-prod-01
+- kv-prod-02
+tags:
+  environment: "prod"
+description: "Production environments."
