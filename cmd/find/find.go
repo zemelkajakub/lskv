@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
-	cacheinternal "github.com/zemelkajakub/lskv/internal/cache"
+	"github.com/zemelkajakub/lskv/internal/cache"
 	"github.com/zemelkajakub/lskv/internal/config"
 )
 
@@ -17,6 +17,7 @@ lskv find database
 	`,
 	Args: cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
+
 		pattern := strings.TrimSpace(args[0])
 		if pattern == "" {
 			return fmt.Errorf("search pattern cannot be empty")
@@ -27,7 +28,7 @@ lskv find database
 			return err
 		}
 
-		cacheData, err := cacheinternal.LoadCache(alias)
+		cacheData, err := cache.LoadCache(alias)
 		if err != nil {
 			return fmt.Errorf("failed to load cache for profile '%s': %w\nHint: run 'lskv cache refresh' first", alias, err)
 		}

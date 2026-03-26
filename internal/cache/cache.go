@@ -46,9 +46,17 @@ func NewCache(ctx context.Context, p *profile.Profile) (*Cache, error) {
 		return nil, fmt.Errorf("failed to create Key Vault client: %v", err)
 	}
 
-	vaults, err := keyvault.ListVaults(ctx, client)
-	if err != nil {
-		return nil, fmt.Errorf("failed to list Key Vaults: %v", err)
+	var vaults []keyvault.VaultInfo
+	if len(p.Vaults) > 0 {
+		vaults = make([]keyvault.VaultInfo, 0, len(p.Vaults))
+		for _, vaultName := range p.Vaults {
+			vaults = append(vaults, keyvault.VaultInfo{Name: vaultName})
+		}
+	} else {
+		vaults, err = keyvault.ListVaults(ctx, client)
+		if err != nil {
+			return nil, fmt.Errorf("failed to list Key Vaults: %v", err)
+		}
 	}
 
 	cacheData := Cache{

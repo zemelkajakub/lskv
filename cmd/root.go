@@ -8,6 +8,7 @@ import (
 	"github.com/spf13/viper"
 	"github.com/zemelkajakub/lskv/cmd/cache"
 	"github.com/zemelkajakub/lskv/cmd/find"
+	"github.com/zemelkajakub/lskv/cmd/get"
 	"github.com/zemelkajakub/lskv/cmd/list"
 	"github.com/zemelkajakub/lskv/cmd/profile"
 	"github.com/zemelkajakub/lskv/internal/config"
@@ -36,6 +37,7 @@ func init() {
 	rootCmd.AddCommand(list.Cmd)
 	rootCmd.AddCommand(cache.Cmd)
 	rootCmd.AddCommand(find.Cmd)
+	rootCmd.AddCommand(get.Cmd)
 
 }
 

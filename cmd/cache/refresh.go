@@ -40,7 +40,9 @@ lskv cache refresh
 			return fmt.Errorf("failed to create cache: %v", err)
 		}
 
-		cache.SaveCache(newCache)
+		if err := cache.SaveCache(newCache); err != nil {
+			return fmt.Errorf("failed to save cache: %v", err)
+		}
 
 		return nil
 

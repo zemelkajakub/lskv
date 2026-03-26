@@ -21,20 +21,31 @@ type Client struct {
 	Vaults         []string
 }
 
-func NewClient(p *profile.Profile) (*Client, error) {
-
+func NewDataPlaneClient() (*Client, error) {
 	cred, err := azidentity.NewDefaultAzureCredential(nil)
 	if err != nil {
 		return nil, err
 	}
 
-	vaultsClient, err := armkeyvault.NewVaultsClient(p.SubscriptionID, cred, nil)
+	return &Client{
+		credential: cred,
+	}, nil
+}
+
+func NewClient(p *profile.Profile) (*Client, error) {
+
+	dataPlaneClient, err := NewDataPlaneClient()
+	if err != nil {
+		return nil, err
+	}
+
+	vaultsClient, err := armkeyvault.NewVaultsClient(p.SubscriptionID, dataPlaneClient.credential, nil)
 	if err != nil {
 		return nil, err
 	}
 
 	return &Client{
-		credential:     cred,
+		credential:     dataPlaneClient.credential,
 		VaultsClient:   vaultsClient,
 		SubscriptionID: p.SubscriptionID,
 		Vaults:         p.Vaults,
