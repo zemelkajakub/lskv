@@ -12,12 +12,11 @@ import (
 )
 
 var cacheStatusCmd = &cobra.Command{
-	Use:   "status",
-	Short: "Show cache status for active profile",
-	Long: `Example:
-lskv cache status
-	`,
-	Args: cobra.NoArgs,
+	Use:          "status",
+	Short:        "Show cache status",
+	Long:         "Show cache status for the active profile.",
+	SilenceUsage: true,
+	Args:         cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		alias, err := config.GetActiveProfile()
 		if err != nil {
@@ -31,7 +30,7 @@ lskv cache status
 
 		cacheDirPath, err := cache.GetCacheDir()
 		if err != nil {
-			return fmt.Errorf("cannot get cache directory path: %w", err)
+			return fmt.Errorf("failed to get cache directory path: %w", err)
 		}
 
 		cacheFile := path.Join(cacheDirPath, fmt.Sprintf("%s.json", alias))
@@ -42,14 +41,16 @@ lskv cache status
 
 		age := time.Since(cacheData.LastRefresh).Round(time.Second)
 
+		fmt.Println("Cache status")
+		fmt.Println("------------")
 		fmt.Printf("Profile: %s\n", cacheData.ProfileAlias)
 		fmt.Printf("Subscription ID: %s\n", cacheData.SubscriptionID)
 		fmt.Printf("Last refresh: %s\n", cacheData.LastRefresh.Format(time.RFC3339))
 		fmt.Printf("Cache age: %s\n", age)
-		fmt.Printf("Cache file: %s\n", cacheFile)
 		fmt.Printf("Cache size: %d bytes\n", fileInfo.Size())
 		fmt.Printf("Vaults: %d total, %d accessible\n", cacheData.Statistics.TotalVaults, cacheData.Statistics.AccessibleVaults)
 		fmt.Printf("Secrets: %d total\n", cacheData.Statistics.TotalSecrets)
+		fmt.Printf("Cache file: %s\n", cacheFile)
 
 		return nil
 	},

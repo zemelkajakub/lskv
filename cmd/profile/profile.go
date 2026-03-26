@@ -8,7 +8,7 @@ var Cmd = &cobra.Command{
 
 	Use:   "profile",
 	Short: "Manage profiles",
-	Long:  "init/list/show/switch/delete profiles",
+	Long:  "Create, inspect, switch, and delete profiles.",
 }
 
 func init() {

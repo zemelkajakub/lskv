@@ -7,8 +7,8 @@ import (
 var Cmd = &cobra.Command{
 
 	Use:   "cache",
-	Short: "Manage local cache of vaults and secrets",
-	Long:  "refresh/status/clear cache state",
+	Short: "Manage the local secret cache",
+	Long:  "Refresh, inspect, or clear the local cache.",
 }
 
 func init() {

@@ -11,13 +11,12 @@ import (
 
 var cacheRefreshCmd = &cobra.Command{
 
-	Use:     "refresh",
-	Aliases: []string{"refresh"},
-	Short:   "Refresh cache of vaults included in the active profile",
-	Long: `Example:
-lskv cache refresh
-	`,
-	Args: cobra.NoArgs,
+	Use:          "refresh",
+	Aliases:      []string{"refresh"},
+	Short:        "Refresh the cache",
+	Long:         "Refresh the cache for the active profile.",
+	SilenceUsage: true,
+	Args:         cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
 
 		ctx := cmd.Context()
@@ -37,12 +36,18 @@ lskv cache refresh
 
 		newCache, err := cache.NewCache(ctx, p)
 		if err != nil {
-			return fmt.Errorf("failed to create cache: %v", err)
+			return fmt.Errorf("failed to refresh cache: %w", err)
 		}
 
 		if err := cache.SaveCache(newCache); err != nil {
-			return fmt.Errorf("failed to save cache: %v", err)
+			return fmt.Errorf("failed to save cache: %w", err)
 		}
+
+		fmt.Println("Cache refreshed")
+		fmt.Println("---------------")
+		fmt.Printf("Profile: %s\n", newCache.ProfileAlias)
+		fmt.Printf("Vaults: %d total, %d accessible\n", newCache.Statistics.TotalVaults, newCache.Statistics.AccessibleVaults)
+		fmt.Printf("Secrets: %d total\n", newCache.Statistics.TotalSecrets)
 
 		return nil
 

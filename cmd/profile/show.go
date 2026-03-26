@@ -2,7 +2,6 @@ package profile
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/spf13/cobra"
 	"github.com/zemelkajakub/lskv/internal/config"
@@ -11,54 +10,62 @@ import (
 
 var profileShowCmd = &cobra.Command{
 
-	Use:   "show [alias]",
-	Short: "Show details of current or specified profile",
-	Long: `Example:
-lskv profile show
-lskv profile show DEV
-	`,
-	Args: cobra.RangeArgs(0, 1),
+	Use:          "show [alias]",
+	Short:        "Show a profile",
+	Long:         "Show the active profile or a specific profile.",
+	SilenceUsage: true,
+	Args:         cobra.RangeArgs(0, 1),
 	RunE: func(cmd *cobra.Command, args []string) error {
+		var alias string
+		var profileData *profile.Profile
+		var err error
 
 		switch argsLength := len(args); argsLength {
 		case 0:
 
-			activeProfile, err := config.GetActiveProfile()
-			if activeProfile == "" {
-				return fmt.Errorf("no profile alias provided and no current profile set in config")
+			alias, err = config.GetActiveProfile()
+			if alias == "" {
+				return fmt.Errorf("no profile specified and no active profile is set")
 			}
-
-			profileConfigPath, err := profile.GetProfilePath(activeProfile)
+			profileData, err = profile.Load(alias)
 			if err != nil {
-				return fmt.Errorf("error loading profile '%s': %v", activeProfile, err)
+				return fmt.Errorf("failed to load profile '%s': %w", alias, err)
 			}
-
-			data, err := os.ReadFile(profileConfigPath)
-			if err != nil {
-				return fmt.Errorf("error reading profile '%s': %v", activeProfile, err)
-			}
-
-			fmt.Printf(string(data))
 
 		case 1:
 
-			alias := args[0]
+			alias = args[0]
 
 			if !profile.ExistsProfile(alias) {
-				return fmt.Errorf("profile '%s' does not exist", alias)
+				return fmt.Errorf("profile '%s' not found", alias)
 			}
-
-			profileConfigPath, err := profile.GetProfilePath(alias)
+			profileData, err = profile.Load(alias)
 			if err != nil {
-				return fmt.Errorf("error loading profile '%s': %v", alias, err)
+				return fmt.Errorf("failed to load profile '%s': %w", alias, err)
 			}
+		}
 
-			data, err := os.ReadFile(profileConfigPath)
-			if err != nil {
-				return fmt.Errorf("error reading profile '%s': %v", alias, err)
+		activeProfile, _ := config.GetActiveProfile()
+
+		fmt.Println("Profile")
+		fmt.Println("-------")
+		fmt.Printf("Alias: %s", profileData.Alias)
+		if profileData.Alias == activeProfile {
+			fmt.Print(" (active)")
+		}
+		fmt.Println()
+		fmt.Printf("Subscription ID: %s\n", profileData.SubscriptionID)
+		if profileData.Description != "" {
+			fmt.Printf("Description: %s\n", profileData.Description)
+		}
+		if len(profileData.Vaults) == 0 {
+			fmt.Println("Vault scope: all accessible vaults")
+		} else {
+			fmt.Printf("Vault scope: %d explicit vault(s)\n", len(profileData.Vaults))
+			fmt.Println("Vaults:")
+			for _, vault := range profileData.Vaults {
+				fmt.Printf("  • %s\n", vault)
 			}
-
-			fmt.Printf(string(data))
 		}
 
 		return nil

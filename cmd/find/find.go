@@ -2,6 +2,7 @@ package find
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -9,13 +10,14 @@ import (
 	"github.com/zemelkajakub/lskv/internal/config"
 )
 
+var findRegex bool
+
 var Cmd = &cobra.Command{
-	Use:   "find [pattern]",
-	Short: "Search cached secret names by substring pattern",
-	Long: `Example:
-lskv find database
-	`,
-	Args: cobra.ExactArgs(1),
+	Use:          "find [pattern]",
+	Short:        "Find secret names in the cache",
+	Long:         "Search cached secret names by substring or regex.",
+	SilenceUsage: true,
+	Args:         cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 
 		pattern := strings.TrimSpace(args[0])
@@ -30,11 +32,18 @@ lskv find database
 
 		cacheData, err := cache.LoadCache(alias)
 		if err != nil {
-			return fmt.Errorf("failed to load cache for profile '%s': %w\nHint: run 'lskv cache refresh' first", alias, err)
+			return fmt.Errorf("failed to load cache for profile '%s': %w. Hint: run 'lskv cache refresh' first", alias, err)
 		}
 
 		normalizedPattern := strings.ToLower(pattern)
-		matches := 0
+
+		var regex *regexp.Regexp
+		if findRegex {
+			regex, err = regexp.Compile(pattern)
+			if err != nil {
+				return fmt.Errorf("invalid regex pattern '%s': %w", pattern, err)
+			}
+		}
 
 		for _, vault := range cacheData.Vaults {
 			if !vault.Accessible || vault.Status != "success" {
@@ -42,17 +51,23 @@ lskv find database
 			}
 
 			for _, secret := range vault.Secrets {
+				if findRegex {
+					if regex.MatchString(secret.Name) {
+						fmt.Printf("%s:%s\n", vault.Name, secret.Name)
+					}
+					continue
+				}
+
 				if strings.Contains(strings.ToLower(secret.Name), normalizedPattern) {
 					fmt.Printf("%s:%s\n", vault.Name, secret.Name)
-					matches++
 				}
 			}
 		}
 
-		if matches == 0 {
-			fmt.Println("No matches found.")
-		}
-
 		return nil
 	},
+}
+
+func init() {
+	Cmd.Flags().BoolVarP(&findRegex, "regex", "e", false, "Use regex pattern matching")
 }

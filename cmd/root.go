@@ -17,8 +17,8 @@ import (
 var rootCmd = &cobra.Command{
 
 	Use:   "lskv",
-	Short: "lskv - Azure Key Vault secrets lister",
-	Long:  "Discover and retreive secrets from Azure Key Vaults across multiple Vaults with profiles and filters.",
+	Short: "Find and get Azure Key Vault secrets",
+	Long:  "Search cached secret names and get secret values from Azure Key Vault.",
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("Welcome to lskv! Use --help to see available commands.")
 	},

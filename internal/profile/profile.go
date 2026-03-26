@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 
 	"github.com/zemelkajakub/lskv/internal/config"
@@ -108,8 +109,6 @@ func Delete(alias string) error {
 	if err := os.Remove(path); err != nil {
 		return fmt.Errorf("failed to delete profile: %w", err)
 	}
-
-	fmt.Printf("Profile '%s' deleted successfully.\n", alias)
 	return nil
 
 }
@@ -141,6 +140,7 @@ func List() ([]string, error) {
 		}
 
 	}
+	sort.Strings(profiles)
 	return profiles, nil
 }
 

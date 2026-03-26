@@ -18,13 +18,11 @@ var (
 
 var profileInitCmd = &cobra.Command{
 
-	Use:   "init [alias]",
-	Short: "Initialize a profile",
-	Long: `Example:
-lskv profile init DEV --subscription-id 0000-1111 --description "Development Subscription"
-lskv profile init PROD --subscription-id 2222-3333 --description "Production Subscription" --vaults kv-prod1-kv, kv-prod2-kv
-	`,
-	Args: cobra.ExactArgs(1),
+	Use:          "init [alias]",
+	Short:        "Create a profile",
+	Long:         "Create a profile and make it active.",
+	SilenceUsage: true,
+	Args:         cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 
 		// Get alias as a first argument
@@ -43,25 +41,30 @@ lskv profile init PROD --subscription-id 2222-3333 --description "Production Sub
 
 		initializedProfile, err := profile.New(alias, initSubscriptionID, initDescription, vaults)
 		if err != nil {
-			return fmt.Errorf("failed to initialize profile: %v", err)
+			return fmt.Errorf("failed to initialize profile: %w", err)
 		}
 
 		// Save profile to file
 		if err := profile.Save(*initializedProfile); err != nil {
-			return fmt.Errorf("failed to save profile: %v", err)
+			return fmt.Errorf("failed to save profile: %w", err)
 		}
 
 		if err := config.SetActiveProfile(initializedProfile.Alias); err != nil {
-			return fmt.Errorf("failed to set active profile: %v", err)
+			return fmt.Errorf("failed to set active profile: %w", err)
 		}
 
-		fmt.Printf("Profile '%s' initialized successfully.\n", initializedProfile.Alias)
+		fmt.Println("Profile initialized")
+		fmt.Println("-------------------")
+		fmt.Printf("Alias: %s (active)\n", initializedProfile.Alias)
 		fmt.Printf("Subscription ID: %s\n", initializedProfile.SubscriptionID)
-		fmt.Printf("Description: %s\n", initializedProfile.Description)
+		if initializedProfile.Description != "" {
+			fmt.Printf("Description: %s\n", initializedProfile.Description)
+		}
 		if len(initializedProfile.Vaults) > 0 {
+			fmt.Printf("Vault scope: %d explicit vault(s)\n", len(initializedProfile.Vaults))
 			fmt.Printf("Vaults: %s\n", strings.Join(initializedProfile.Vaults, ", "))
 		} else {
-			fmt.Printf("Vaults: (all vaults will be used)\n")
+			fmt.Println("Vault scope: all accessible vaults")
 		}
 
 		return nil

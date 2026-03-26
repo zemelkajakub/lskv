@@ -10,25 +10,25 @@ import (
 
 var profileSwitchCmd = &cobra.Command{
 
-	Use:   "switch [alias]",
-	Short: "Change the active profile",
-	Long: `Example:
-lskv profile switch DEV
-	`,
-	Args: cobra.ExactArgs(1),
+	Use:          "switch [alias]",
+	Short:        "Switch the active profile",
+	Long:         "Set the active profile.",
+	SilenceUsage: true,
+	Args:         cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 
 		alias := args[0]
 
 		if !profile.ExistsProfile(alias) {
-			return fmt.Errorf("profile '%s' does not exist", alias)
+			return fmt.Errorf("profile '%s' not found", alias)
 		}
 
 		if err := config.SetActiveProfile(alias); err != nil {
-			return fmt.Errorf("failed to switch profile: %v", err)
+			return fmt.Errorf("failed to switch profile: %w", err)
 		}
 
-		fmt.Printf("Switched to profile '%s'\n", alias)
+		fmt.Println("Active profile updated")
+		fmt.Printf("• %s\n", alias)
 
 		return nil
 	},

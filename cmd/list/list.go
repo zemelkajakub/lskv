@@ -8,9 +8,10 @@ var Cmd = &cobra.Command{
 
 	Use:   "list",
 	Short: "List vaults or secrets",
-	Long:  "vaults/secrets based on the active profile",
+	Long:  "List accessible vaults or cached secrets.",
 }
 
 func init() {
 	Cmd.AddCommand(listVaultsCmd)
+	Cmd.AddCommand(listSecretsCmd)
 }

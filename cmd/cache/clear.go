@@ -9,12 +9,11 @@ import (
 )
 
 var cacheClearCmd = &cobra.Command{
-	Use:   "clear",
-	Short: "Clear cache for active profile",
-	Long: `Example:
-lskv cache clear
-	`,
-	Args: cobra.NoArgs,
+	Use:          "clear",
+	Short:        "Clear the cache",
+	Long:         "Clear the cache for the active profile.",
+	SilenceUsage: true,
+	Args:         cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		alias, err := config.GetActiveProfile()
 		if err != nil {
@@ -25,7 +24,8 @@ lskv cache clear
 		if err != nil {
 			return err
 		}
-		fmt.Printf("Cache cleared for profile '%s'\n", alias)
+		fmt.Println("Cache cleared")
+		fmt.Printf("Profile: %s\n", alias)
 
 		return nil
 	},
