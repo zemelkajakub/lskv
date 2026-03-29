@@ -66,7 +66,7 @@ var listVaultsCmd = &cobra.Command{
 			err    error
 		}
 
-		workers := totalCount / 2
+		workers := min(len(vaults)/2, 40)
 		if workers < 1 {
 			workers = 1
 		}

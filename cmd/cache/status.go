@@ -3,7 +3,7 @@ package cache
 import (
 	"fmt"
 	"os"
-	"path"
+	"path/filepath"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -33,7 +33,7 @@ var cacheStatusCmd = &cobra.Command{
 			return fmt.Errorf("failed to get cache directory path: %w", err)
 		}
 
-		cacheFile := path.Join(cacheDirPath, fmt.Sprintf("%s.json", alias))
+		cacheFile := filepath.Join(cacheDirPath, fmt.Sprintf("%s.json", alias))
 		fileInfo, err := os.Stat(cacheFile)
 		if err != nil {
 			return fmt.Errorf("failed to read cache file metadata '%s': %w", cacheFile, err)

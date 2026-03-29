@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"path"
+	"path/filepath"
 	"sync"
 	"time"
 
@@ -43,7 +43,7 @@ func NewCache(ctx context.Context, p *profile.Profile) (*Cache, error) {
 	// Create client for subscription from active profile
 	client, err := keyvault.NewClient(p)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create Key Vault client: %v", err)
+		return nil, fmt.Errorf("failed to create vault client: %w", err)
 	}
 
 	var vaults []keyvault.VaultInfo
@@ -55,7 +55,7 @@ func NewCache(ctx context.Context, p *profile.Profile) (*Cache, error) {
 	} else {
 		vaults, err = keyvault.ListVaults(ctx, client)
 		if err != nil {
-			return nil, fmt.Errorf("failed to list Key Vaults: %v", err)
+			return nil, fmt.Errorf("failed to list vaults: %w", err)
 		}
 	}
 
@@ -84,7 +84,7 @@ func NewCache(ctx context.Context, p *profile.Profile) (*Cache, error) {
 		err        error
 	}
 
-	workers := len(vaults) / 2
+	workers := min(len(vaults)/2, 40)
 	if workers < 1 {
 		workers = 1
 	}
@@ -145,13 +145,13 @@ func NewCache(ctx context.Context, p *profile.Profile) (*Cache, error) {
 
 		// Log error details for unexpected failures
 		if result.err != nil {
-			fmt.Printf("  ✗ %-30s %s: %v\n", result.vaultEntry.Name, result.vaultEntry.Status, result.err)
+			fmt.Fprintf(os.Stderr, "  ✗ %-30s %s: %v\n", result.vaultEntry.Name, result.vaultEntry.Status, result.err)
 		} else {
 			statusSymbol := "✗"
 			if result.vaultEntry.Status == "success" {
 				statusSymbol = "✓"
 			}
-			fmt.Printf("  %s %-30s %s\n", statusSymbol, result.vaultEntry.Name, result.vaultEntry.Status)
+			fmt.Fprintf(os.Stderr, "  %s %-30s %s\n", statusSymbol, result.vaultEntry.Name, result.vaultEntry.Status)
 		}
 	}
 
@@ -171,25 +171,25 @@ func SaveCache(cache *Cache) error {
 	alias := cache.ProfileAlias
 
 	if err := EnsureCacheDir(); err != nil {
-		return fmt.Errorf("cannot create cache directory: %w", err)
+		return fmt.Errorf("failed to create cache directory: %w", err)
 	}
 
 	cacheDirPath, err := GetCacheDir()
 	if err != nil {
-		return fmt.Errorf("cannot get cache directory path: %w", err)
+		return fmt.Errorf("failed to get cache directory path: %w", err)
 	}
 
 	cacheName := fmt.Sprintf("%s.json", alias)
-	cacheFile := path.Join(cacheDirPath, cacheName)
+	cacheFile := filepath.Join(cacheDirPath, cacheName)
 
 	cacheJson, err := json.Marshal(cache)
 	if err != nil {
-		return fmt.Errorf("Failed marshaling cache data to JSON: %w", err)
+		return fmt.Errorf("failed to marshal cache data to JSON: %w", err)
 	}
 
 	// 0600 to keep private
 	if err := os.WriteFile(cacheFile, cacheJson, 0o600); err != nil {
-		return fmt.Errorf("failed to write profile: %w", err)
+		return fmt.Errorf("failed to write cache file: %w", err)
 	}
 
 	return nil
@@ -203,11 +203,11 @@ func LoadCache(alias string) (*Cache, error) {
 
 	cacheDirPath, err := GetCacheDir()
 	if err != nil {
-		return nil, fmt.Errorf("cannot get cache directory path: %w", err)
+		return nil, fmt.Errorf("failed to get cache directory path: %w", err)
 	}
 
 	cacheName := fmt.Sprintf("%s.json", alias)
-	cacheFile := path.Join(cacheDirPath, cacheName)
+	cacheFile := filepath.Join(cacheDirPath, cacheName)
 
 	cacheJSON, err := os.ReadFile(cacheFile)
 	if err != nil {
@@ -229,11 +229,11 @@ func ClearCache(alias string) error {
 
 	cacheDirPath, err := GetCacheDir()
 	if err != nil {
-		return fmt.Errorf("cannot get cache directory path: %w", err)
+		return fmt.Errorf("failed to get cache directory path: %w", err)
 	}
 
 	cacheName := fmt.Sprintf("%s.json", alias)
-	cacheFile := path.Join(cacheDirPath, cacheName)
+	cacheFile := filepath.Join(cacheDirPath, cacheName)
 
 	if err := os.Remove(cacheFile); err != nil {
 		if os.IsNotExist(err) {

@@ -22,7 +22,10 @@ var profileListCmd = &cobra.Command{
 			return fmt.Errorf("failed to list profiles: %w", err)
 		}
 
-		activeProfile, _ := config.GetActiveProfile()
+		activeProfile, err := config.GetActiveProfile()
+		if err != nil {
+			return fmt.Errorf("failed to get active profile: %w", err)
+		}
 
 		if len(profiles) == 0 {
 			fmt.Println("No profiles configured.")

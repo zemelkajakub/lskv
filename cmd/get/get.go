@@ -11,6 +11,12 @@ import (
 	"github.com/zemelkajakub/lskv/internal/keyvault"
 )
 
+const (
+	ansiReset = "\x1b[0m"
+	ansiCyan  = "\x1b[36m"
+	ansiDim   = "\x1b[2m"
+)
+
 var Cmd = &cobra.Command{
 
 	Use:          "get [vault:secret|-]",
@@ -93,7 +99,14 @@ func runBatchGet(cmd *cobra.Command, client *keyvault.Client) error {
 	}
 
 	if len(jobsList) > 0 {
-		workers := len(jobsList) / 2
+		keyWidth := 0
+		for _, job := range jobsList {
+			if len(job.line) > keyWidth {
+				keyWidth = len(job.line)
+			}
+		}
+
+		workers := min(len(jobsList)/2, 40)
 		if workers < 1 {
 			workers = 1
 		}
@@ -124,6 +137,8 @@ func runBatchGet(cmd *cobra.Command, client *keyvault.Client) error {
 		}
 		close(jobs)
 
+		color := shouldColorizeStdout()
+
 		for i := 0; i < len(jobsList); i++ {
 			result := <-results
 			if result.err != nil {
@@ -138,7 +153,26 @@ func runBatchGet(cmd *cobra.Command, client *keyvault.Client) error {
 				continue
 			}
 
-			fmt.Printf("%s\t%s\n", result.line, result.value)
+			displayValue := strings.ReplaceAll(result.value, "\r\n", "\n")
+			displayValue = strings.TrimRight(displayValue, "\n")
+
+			if strings.Contains(displayValue, "\n") {
+				if color {
+					fmt.Printf("%s%s%s\n", ansiCyan, result.line, ansiReset)
+					fmt.Printf("%s%s%s\n", ansiDim, displayValue, ansiReset)
+				} else {
+					fmt.Println(result.line)
+					fmt.Println(displayValue)
+				}
+				fmt.Println()
+				continue
+			}
+
+			if color {
+				fmt.Printf("%s%-*s%s  %s\n", ansiCyan, keyWidth, result.line, ansiReset, displayValue)
+			} else {
+				fmt.Printf("%-*s  %s\n", keyWidth, result.line, displayValue)
+			}
 		}
 
 		wg.Wait()
@@ -180,4 +214,17 @@ func simplifyGetError(err error) string {
 	}
 
 	return msg
+}
+
+func shouldColorizeStdout() bool {
+	if os.Getenv("NO_COLOR") != "" {
+		return false
+	}
+
+	info, err := os.Stdout.Stat()
+	if err != nil {
+		return false
+	}
+
+	return (info.Mode() & os.ModeCharDevice) != 0
 }

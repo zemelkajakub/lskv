@@ -15,12 +15,9 @@ var profileDeleteCmd = &cobra.Command{
 	SilenceUsage: true,
 	Args:         cobra.MinimumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
+
 		deleted := make([]string, 0, len(args))
 		skipped := make([]string, 0)
-
-		if argsLength := len(args); argsLength == 0 {
-			return fmt.Errorf("no profile aliases provided")
-		}
 
 		for _, alias := range args {
 

@@ -16,7 +16,7 @@ const (
 func GetAppDir() (string, error) {
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
-		return "", fmt.Errorf("error getting user home directory: %w", err)
+		return "", fmt.Errorf("failed to get user home directory: %w", err)
 	}
 	appDirPath := filepath.Join(homeDir, AppDir)
 
@@ -55,7 +55,7 @@ func EnsureAppDir() error {
 	// Ensure .lskv directory exists
 	err = os.MkdirAll(appDirPath, 0o700)
 	if err != nil {
-		return fmt.Errorf("error creating '%s' directory: %w", appDirPath, err)
+		return fmt.Errorf("failed to create '%s' directory: %w", appDirPath, err)
 	}
 	return nil
 }
@@ -70,7 +70,7 @@ func EnsureProfilesDir() error {
 	// Ensure profiles directory exists
 	err = os.MkdirAll(profilesDir, 0o700)
 	if err != nil {
-		return fmt.Errorf("error creating profiles directory: %w", err)
+		return fmt.Errorf("failed to create profiles directory: %w", err)
 	}
 
 	return nil

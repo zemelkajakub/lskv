@@ -25,14 +25,14 @@ func GetActiveProfile() (string, error) {
 func SetActiveProfile(alias string) error {
 
 	if err := EnsureAppDir(); err != nil {
-		return fmt.Errorf("cannot create app directory: %w", err)
+		return fmt.Errorf("failed to create app directory: %w", err)
 	}
 
 	viper.Set("active_profile", alias)
 
 	configFile, err := GetConfigFile()
 	if err != nil {
-		return fmt.Errorf("error getting config file path: %w", err)
+		return fmt.Errorf("failed to get file path: %w", err)
 	}
 
 	if err := viper.WriteConfig(); err != nil {
@@ -40,7 +40,7 @@ func SetActiveProfile(alias string) error {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
 			return viper.WriteConfigAs(configFile)
 		}
-		return fmt.Errorf("error writing config file: %v", err)
+		return fmt.Errorf("failed to write config file: %w", err)
 	}
 	return nil
 }

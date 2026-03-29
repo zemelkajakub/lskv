@@ -19,7 +19,7 @@ const (
 type Profile struct {
 	Alias          string   `yaml:"alias"`
 	SubscriptionID string   `yaml:"subscription_id"`
-	Description    string   `yaml:"description"`
+	Description    string   `yaml:"description,omitempty"`
 	Vaults         []string `yaml:"vaults,omitempty"`
 }
 
@@ -28,9 +28,6 @@ func New(alias string, subscriptionID string, description string, vaults []strin
 
 	if alias == "" {
 		return nil, fmt.Errorf("alias cannot be empty")
-	}
-	if subscriptionID == "" {
-		return nil, fmt.Errorf("subscription ID cannot be empty")
 	}
 
 	return &Profile{

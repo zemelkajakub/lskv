@@ -24,6 +24,9 @@ var profileShowCmd = &cobra.Command{
 		case 0:
 
 			alias, err = config.GetActiveProfile()
+			if err != nil {
+				return fmt.Errorf("failed to get active profile: %w", err)
+			}
 			if alias == "" {
 				return fmt.Errorf("no profile specified and no active profile is set")
 			}
@@ -45,7 +48,10 @@ var profileShowCmd = &cobra.Command{
 			}
 		}
 
-		activeProfile, _ := config.GetActiveProfile()
+		activeProfile, err := config.GetActiveProfile()
+		if err != nil {
+			return fmt.Errorf("failed to get active profile: %w", err)
+		}
 
 		fmt.Println("Profile")
 		fmt.Println("-------")

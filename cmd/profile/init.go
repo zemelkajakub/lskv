@@ -75,6 +75,6 @@ func init() {
 	profileInitCmd.Flags().StringVar(&initSubscriptionID, "subscription-id", "", "Azure Subscription ID (required)")
 	profileInitCmd.Flags().StringVar(&initDescription, "description", "", "Description for the profile")
 	profileInitCmd.Flags().StringVar(&initVaults, "vaults", "", "Comma-separated list of Key Vault names. If omitted, profile will cover all Key Vaults.")
-	profileInitCmd.MarkFlagsOneRequired("subscription-id", "description")
+	profileInitCmd.MarkFlagsOneRequired("subscription-id")
 
 }
