@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sort"
 	"sync"
 	"time"
 
@@ -157,6 +158,10 @@ func NewCache(ctx context.Context, p *profile.Profile) (*Cache, error) {
 
 	wg.Wait()
 	close(results)
+
+	sort.Slice(cacheData.Vaults, func(i, j int) bool {
+		return cacheData.Vaults[i].Name < cacheData.Vaults[j].Name
+	})
 
 	cacheData.Statistics = Statistics{
 		TotalVaults:      len(vaults),

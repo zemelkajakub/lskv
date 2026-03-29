@@ -41,9 +41,17 @@ var listVaultsCmd = &cobra.Command{
 			return fmt.Errorf("failed to create key vault client: %w", err)
 		}
 
-		vaults, err := keyvault.ListVaults(ctx, client)
-		if err != nil {
-			return fmt.Errorf("failed to list key vaults: %w", err)
+		var vaults []keyvault.VaultInfo
+		if len(p.Vaults) > 0 {
+			vaults = make([]keyvault.VaultInfo, 0, len(p.Vaults))
+			for _, name := range p.Vaults {
+				vaults = append(vaults, keyvault.VaultInfo{Name: name})
+			}
+		} else {
+			vaults, err = keyvault.ListVaults(ctx, client)
+			if err != nil {
+				return fmt.Errorf("failed to list key vaults: %w", err)
+			}
 		}
 
 		accessibleCount := 0

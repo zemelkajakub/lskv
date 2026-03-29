@@ -31,7 +31,7 @@ func EnsureCacheDir() error {
 	// Ensure .lskv directory exists
 	err = os.MkdirAll(cacheDirPath, 0o700)
 	if err != nil {
-		return fmt.Errorf("error creating '%s' directory: %w", cacheDirPath, err)
+		return fmt.Errorf("failed to create '%s' directory: %w", cacheDirPath, err)
 	}
 	return nil
 }

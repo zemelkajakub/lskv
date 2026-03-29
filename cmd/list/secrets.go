@@ -2,6 +2,7 @@ package list
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -34,14 +35,19 @@ var listSecretsCmd = &cobra.Command{
 				return fmt.Errorf("failed to load cache for profile '%s': %w. Hint: run 'lskv cache refresh' first", alias, err)
 			}
 
+			var lines []string
 			for _, vault := range cacheData.Vaults {
 				if !vault.Accessible || vault.Status != "success" {
 					continue
 				}
 
 				for _, secret := range vault.Secrets {
-					fmt.Printf("%s:%s\n", vault.Name, secret.Name)
+					lines = append(lines, fmt.Sprintf("%s:%s", vault.Name, secret.Name))
 				}
+			}
+			sort.Strings(lines)
+			for _, line := range lines {
+				fmt.Println(line)
 			}
 			return nil
 		}
