@@ -7,9 +7,11 @@ It is built for:
 - profile-based work across subscriptions/environments
 - pipeline-friendly batch retrieval (`find | get -`)
 
+> 💡 Tip: You can also use `lskv` directly without any profile for single-vault operations.
+
 ---
 
-## 1) First step: authenticate to Azure
+## 1) 🔐 First step: authenticate to Azure
 
 ```bash
 az login
@@ -23,7 +25,7 @@ az login --tenant <tenant-id>
 
 ---
 
-## 2) Install
+## 2) 📦 Install
 
 ### Option A: one-line install (recommended)
 
@@ -48,7 +50,18 @@ go build -o lskv
 
 ---
 
-## 3) Quick start
+## 3) 🚀 Quick start
+
+### No profile needed (direct mode)
+
+If you already know the vault, these commands work without configuring a profile:
+
+```bash
+lskv get <vault:secret>
+lskv list secrets <vault>
+```
+
+Use profiles when you want cache/search workflows (`find`, `list secrets all`, `cache ...`).
 
 ### Create and activate profile
 
@@ -82,6 +95,12 @@ Single secret:
 lskv get <vault:secret>
 ```
 
+List one vault directly (cache-first, API fallback):
+
+```bash
+lskv list secrets <vault>
+```
+
 Batch from pipeline:
 
 ```bash
@@ -90,7 +109,7 @@ lskv find traefik | grep -E "dev-" | lskv get -
 
 ---
 
-## 4) Commands and behavior
+## 4) 🧭 Commands and behavior
 
 ### Profiles
 
@@ -121,6 +140,7 @@ Behavior:
 - `list secrets all` reads from cache only
 - `list secrets <vault>` reads from cache first, then falls back to Azure API
 - `list vaults` verifies **data-plane access** to each candidate vault
+- `get <vault:secret>` works directly against Azure Key Vault (no profile required)
 
 ### Find / Get format contract
 
@@ -131,7 +151,7 @@ Behavior:
 
 ---
 
-## 5) Common use cases
+## 5) 🛠️ Common use cases
 
 ### Incident response lookup
 1. `lskv cache refresh`
@@ -150,7 +170,7 @@ Use `--vaults` in profile init to restrict scope per environment/team.
 
 ---
 
-## 6) Notes
+## 6) 📝 Notes
 
 - set `NO_COLOR=1` to disable terminal colors
 - if auth errors mention tenant mismatch, re-login with correct tenant
