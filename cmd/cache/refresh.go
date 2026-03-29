@@ -12,7 +12,7 @@ import (
 var cacheRefreshCmd = &cobra.Command{
 
 	Use:          "refresh",
-	Short:        "Refresh the cache",
+	Short:        "Refresh cache",
 	Long:         "Refresh the cache for the active profile.",
 	SilenceUsage: true,
 	Args:         cobra.NoArgs,

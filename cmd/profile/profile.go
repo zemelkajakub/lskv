@@ -7,8 +7,8 @@ import (
 var Cmd = &cobra.Command{
 
 	Use:   "profile",
-	Short: "Manage profiles",
-	Long:  "Create, inspect, switch, and delete profiles.",
+	Short: "Manage Azure profiles",
+	Long:  "Create, list, show, switch, and delete profiles.",
 }
 
 func init() {

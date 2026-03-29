@@ -10,7 +10,7 @@ import (
 
 var cacheClearCmd = &cobra.Command{
 	Use:          "clear",
-	Short:        "Clear the cache",
+	Short:        "Clear cache",
 	Long:         "Clear the cache for the active profile.",
 	SilenceUsage: true,
 	Args:         cobra.NoArgs,

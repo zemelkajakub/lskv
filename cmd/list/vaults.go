@@ -17,7 +17,7 @@ var listVaultsCmd = &cobra.Command{
 	Use:          "vaults",
 	Aliases:      []string{"vault", "v"},
 	Short:        "List accessible vaults",
-	Long:         "List vaults that are accessible for secret operations.",
+	Long:         "List profile vaults that are accessible for secret operations.",
 	SilenceUsage: true,
 	Args:         cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {

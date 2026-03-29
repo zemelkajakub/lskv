@@ -19,8 +19,8 @@ var (
 var profileInitCmd = &cobra.Command{
 
 	Use:          "init [alias]",
-	Short:        "Create a profile",
-	Long:         "Create a profile and make it active.",
+	Short:        "Create and activate profile",
+	Long:         "Create a new profile and set it as active.",
 	SilenceUsage: true,
 	Args:         cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {

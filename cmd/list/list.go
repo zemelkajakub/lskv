@@ -7,8 +7,8 @@ import (
 var Cmd = &cobra.Command{
 
 	Use:   "list",
-	Short: "List vaults or secrets",
-	Long:  "List accessible vaults or cached secrets.",
+	Short: "List vaults and secrets",
+	Long:  "List accessible vaults or secrets in vault:secret format.",
 }
 
 func init() {

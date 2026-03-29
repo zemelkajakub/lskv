@@ -11,8 +11,8 @@ import (
 var profileListCmd = &cobra.Command{
 
 	Use:          "list",
-	Short:        "List profiles",
-	Long:         "List configured profiles.",
+	Short:        "List configured profiles",
+	Long:         "List all saved profile aliases.",
 	SilenceUsage: true,
 	Args:         cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {

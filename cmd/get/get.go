@@ -20,8 +20,8 @@ const (
 var Cmd = &cobra.Command{
 
 	Use:          "get [vault:secret|-]",
-	Short:        "Get a secret value",
-	Long:         "Get a secret value directly from Azure Key Vault.",
+	Short:        "Get secret value",
+	Long:         "Get a secret value directly or in batch mode from stdin.",
 	SilenceUsage: true,
 	Args:         cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {

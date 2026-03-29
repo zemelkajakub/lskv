@@ -11,8 +11,8 @@ import (
 
 var Cmd = &cobra.Command{
 	Use:          "find [pattern]",
-	Short:        "Find secret names in the cache",
-	Long:         "Search cached secret names by substring.",
+	Short:        "Find secret names",
+	Long:         "Search cached secret names by substring and print vault:secret.",
 	SilenceUsage: true,
 	Args:         cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {

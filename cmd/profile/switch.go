@@ -11,8 +11,8 @@ import (
 var profileSwitchCmd = &cobra.Command{
 
 	Use:          "switch [alias]",
-	Short:        "Switch the active profile",
-	Long:         "Set the active profile.",
+	Short:        "Set active profile",
+	Long:         "Switch the current active profile.",
 	SilenceUsage: true,
 	Args:         cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {

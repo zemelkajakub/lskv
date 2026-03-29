@@ -11,8 +11,8 @@ import (
 var profileShowCmd = &cobra.Command{
 
 	Use:          "show [alias]",
-	Short:        "Show a profile",
-	Long:         "Show the active profile or a specific profile.",
+	Short:        "Show profile details",
+	Long:         "Show the active profile or a specific profile alias.",
 	SilenceUsage: true,
 	Args:         cobra.RangeArgs(0, 1),
 	RunE: func(cmd *cobra.Command, args []string) error {

@@ -14,7 +14,7 @@ import (
 var listSecretsCmd = &cobra.Command{
 	Use:          "secrets [all|vault]",
 	Short:        "List secrets as vault:secret",
-	Long:         "List cached secrets for all vaults or list secrets for one vault.",
+	Long:         "List secrets from cache for all vaults or for one vault from cache/API.",
 	SilenceUsage: true,
 	Args:         cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {

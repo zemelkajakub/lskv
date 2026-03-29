@@ -11,7 +11,7 @@ var profileDeleteCmd = &cobra.Command{
 
 	Use:          "delete [alias]",
 	Short:        "Delete profiles",
-	Long:         "Delete one or more profiles.",
+	Long:         "Delete one or more saved profile aliases.",
 	SilenceUsage: true,
 	Args:         cobra.MinimumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
