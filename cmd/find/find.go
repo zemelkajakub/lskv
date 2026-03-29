@@ -29,7 +29,7 @@ var Cmd = &cobra.Command{
 
 		cacheData, err := cache.LoadCache(alias)
 		if err != nil {
-			return fmt.Errorf("failed to load cache for profile '%s': %w. Hint: run 'lskv cache refresh' first", alias, err)
+			return fmt.Errorf("failed to load cache for profile '%s': %w.", alias, err)
 		}
 
 		normalizedPattern := strings.ToLower(pattern)

@@ -217,7 +217,7 @@ func LoadCache(alias string) (*Cache, error) {
 	cacheJSON, err := os.ReadFile(cacheFile)
 	if err != nil {
 		if os.IsNotExist(err) {
-			return nil, fmt.Errorf("cache for profile '%s' not found: %w", alias, err)
+			return nil, fmt.Errorf("cache for profile '%s' not found: %w\nRun: lskv cache refresh", alias, err)
 		}
 		return nil, fmt.Errorf("failed to read cache file '%s': %w", cacheFile, err)
 	}
