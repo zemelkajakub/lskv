@@ -32,13 +32,13 @@ az login --tenant <tenant-id>
 Installs latest release to `/usr/local/bin`:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/zemelkajakub/lskv/main/scripts/install.sh | sudo bash
+curl -fsSL https://raw.githubusercontent.com/zemelkajakub/lskv/develop/scripts/install.sh | sudo bash
 ```
 
 Install to user path instead:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/zemelkajakub/lskv/main/scripts/install.sh | bash -s -- --install-dir "$HOME/.local/bin"
+curl -fsSL https://raw.githubusercontent.com/zemelkajakub/lskv/develop/scripts/install.sh | bash -s -- --install-dir "$HOME/.local/bin"
 ```
 
 ### Option B: build locally
