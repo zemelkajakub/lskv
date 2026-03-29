@@ -109,7 +109,37 @@ lskv find traefik | grep -E "dev-" | lskv get -
 
 ---
 
-## 4) 🧭 Commands and behavior
+## 4) ⚖️ Why use lskv vs az
+
+`az` is great for broad Azure management, but `lskv` is optimized for secret discovery/retrieval workflows.
+
+Key benefits:
+- faster secret name discovery with local cache (`find`)
+- consistent `vault:secret` output contract for pipelines
+- profile-based context for teams/environments
+- direct batch retrieval (`find ... | lskv get -`)
+
+### Cache benefit for vault-less profiles
+
+If a profile has **no explicit `--vaults`**, `lskv cache refresh` discovers accessible vaults and stores their secret names locally.
+
+That gives you:
+- quick search across many vaults without repeatedly calling Azure APIs
+- lower latency for incident/debug scenarios
+- easier discovery when you know only part of a secret name, not the vault
+
+Typical flow:
+
+```bash
+lskv profile init DEV --subscription-id <subscription-id>
+lskv cache refresh
+lskv find payment
+lskv get <vault:secret>
+```
+
+---
+
+## 5) 🧭 Commands and behavior
 
 ### Profiles
 
@@ -151,7 +181,7 @@ Behavior:
 
 ---
 
-## 5) 🛠️ Common use cases
+## 6) 🛠️ Common use cases
 
 ### Incident response lookup
 1. `lskv cache refresh`
@@ -170,7 +200,7 @@ Use `--vaults` in profile init to restrict scope per environment/team.
 
 ---
 
-## 6) 📝 Notes
+## 7) 📝 Notes
 
 - set `NO_COLOR=1` to disable terminal colors
 - if auth errors mention tenant mismatch, re-login with correct tenant
