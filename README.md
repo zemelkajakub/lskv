@@ -7,6 +7,16 @@ It is built for:
 - profile-based work across subscriptions/environments
 - pipeline-friendly batch retrieval (`find | get -`)
 
+## Why lskv first
+
+If your daily flow is "find secret name quickly" and "fetch values safely across multiple vaults", `lskv` is faster and simpler than stitching many `az` commands together.
+
+What you get immediately:
+- **search once, reuse often** with local cache (`cache refresh` + `find`)
+- **stable pipeline format** (`vault:secret`) for automation
+- **environment context** via profiles (DEV/QA/PROD)
+- **direct mode** for quick one-off calls when profile is unnecessary
+
 > 💡 Tip: You can also use `lskv` directly without any profile for single-vault operations.
 
 ---
@@ -75,6 +85,12 @@ Scoped profile (only selected vaults):
 lskv profile init PROD --subscription-id <subscription-id> --description "Production" --vaults kv-prod1,kv-prod2
 ```
 
+### See active profile
+
+```bash
+lskv profile show
+```
+
 ### Refresh cache
 
 ```bash
@@ -109,7 +125,52 @@ lskv find traefik | grep -E "dev-" | lskv get -
 
 ---
 
-## 4) ⚖️ Why use lskv vs az
+## 4) 👤 Profiles explained (important)
+
+Profiles define the working context for cache/search/list workflows.
+
+Think of a profile as:
+- target Azure subscription
+- optional list of allowed vaults
+- optional description for team clarity
+
+### How profile scope works
+
+1. **Unscoped profile** (no `--vaults`):
+	- `cache refresh` discovers all accessible vaults in subscription
+	- best for exploration and broad discovery
+
+2. **Scoped profile** (with `--vaults`):
+	- only listed vaults are considered
+	- best for production safety and team boundaries
+
+### Typical team setup
+
+```bash
+# Developer broad discovery profile
+lskv profile init DEV --subscription-id <subscription-id>
+
+# Production restricted profile
+lskv profile init PROD --subscription-id <subscription-id> --vaults kv-prod1,kv-prod2 --description "Production vaults only"
+
+# Switch context explicitly
+lskv profile switch DEV
+lskv profile show
+```
+
+### Profile lifecycle commands
+
+```bash
+lskv profile list
+lskv profile show
+lskv profile show DEV
+lskv profile switch PROD
+lskv profile delete DEV
+```
+
+---
+
+## 5) ⚖️ Why use lskv vs az
 
 `az` is great for broad Azure management, but `lskv` is optimized for secret discovery/retrieval workflows.
 
@@ -139,7 +200,7 @@ lskv get <vault:secret>
 
 ---
 
-## 5) 🧭 Commands and behavior
+## 6) 🧭 Commands and behavior
 
 ### Profiles
 
@@ -181,7 +242,64 @@ Behavior:
 
 ---
 
-## 6) 🛠️ Common use cases
+## 7) 🛠️ Example-driven workflows
+
+### A) I know the vault and secret name already
+
+```bash
+lskv get kv-dev-app:DbPassword
+```
+
+### B) I only know part of the secret name
+
+```bash
+lskv profile switch DEV
+lskv cache refresh
+lskv find db-password
+```
+
+Then pick one result and fetch value:
+
+```bash
+lskv get kv-dev-app:db-password
+```
+
+### C) Get many matching secrets at once
+
+```bash
+lskv find connection-string | lskv get -
+```
+
+Filter to subset before retrieval:
+
+```bash
+lskv find traefik | grep -E "prod-" | lskv get -
+```
+
+### D) List secrets from one vault (cache-first)
+
+```bash
+lskv list secrets kv-prod1
+```
+
+### E) List all cached secrets in current profile
+
+```bash
+lskv list secrets all
+```
+
+### F) Incident response lookup
+
+```bash
+lskv profile switch PROD
+lskv cache refresh
+lskv find payment
+lskv get kv-prod1:payment-api-key
+```
+
+---
+
+## 8) 🛠️ Common use cases
 
 ### Incident response lookup
 1. `lskv cache refresh`
@@ -200,7 +318,7 @@ Use `--vaults` in profile init to restrict scope per environment/team.
 
 ---
 
-## 7) 📝 Notes
+## 9) 📝 Notes
 
 - set `NO_COLOR=1` to disable terminal colors
 - if auth errors mention tenant mismatch, re-login with correct tenant
