@@ -48,9 +48,10 @@ jobs:
           mkdir -p dist
 
           BIN="lskv"
+          VERSION=${GITHUB_REF#refs/tags/}
 
           CGO_ENABLED=0 GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} \
-            go build -trimpath -ldflags="-s -w -X 'github.com/zemelkajakub/lskv/cmd/version.version=$(git tags --describe --always)'" -o "dist/${BIN}" .
+            go build -trimpath -ldflags="-s -w -X 'github.com/zemelkajakub/lskv/cmd/version.version=${VERSION}'" -o "dist/${BIN}" .
 
       - name: Package archive
         shell: bash
