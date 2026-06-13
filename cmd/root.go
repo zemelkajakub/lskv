@@ -11,6 +11,7 @@ import (
 	"github.com/zemelkajakub/lskv/cmd/get"
 	"github.com/zemelkajakub/lskv/cmd/list"
 	"github.com/zemelkajakub/lskv/cmd/profile"
+	"github.com/zemelkajakub/lskv/cmd/version"
 	"github.com/zemelkajakub/lskv/internal/config"
 )
 
@@ -50,6 +51,7 @@ func init() {
 	rootCmd.AddCommand(cache.Cmd)
 	rootCmd.AddCommand(find.Cmd)
 	rootCmd.AddCommand(get.Cmd)
+	rootCmd.AddCommand(version.Cmd)
 
 }
 
